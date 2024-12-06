@@ -122,6 +122,21 @@ services:
       - ../data/deluge:/config
       - /mnt/media/Downloads:/downloads
 
+  jackett:
+    image: linuxserver/jackett:latest
+    container_name: jackett
+    restart: unless-stopped
+    environment:
+      TZ: "Europe/Lisbon"
+    volumes:
+      - ../data/jackett:/config
+      - /mnt/media/Downloads:/downloads
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jackett.rule=Host(`jackett.${MY_DOMAIN}`)"
+      - "traefik.http.routers.jackett.entryPoints=websecure"
+      - "traefik.http.routers.jackett.middlewares=authelia@docker"
+
   jellyfin:
     container_name: jellyfin
     image: jellyfin/jellyfin:latest
