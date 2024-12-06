@@ -11,9 +11,9 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--certificatesresolvers.letsencrypt.acme.dnschallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=duckdns"
-      - "--certificatesresolvers.letsencrypt.acme.email=mail@mail.com"
-      - "--certificatesresolvers.letsencrypt.acme.dnschallenge.disablePropagationCheck=true"
+      - "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=hetzner"
+      - "--certificatesresolvers.letsencrypt.acme.email=support@${MY_DOMAIN}"
+      - "--certificatesresolvers.letsencrypt.acme.dnschallenge.disablePropagationCheck=false"
       - "--certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
       - "--entrypoints.web.address=:80"
@@ -37,7 +37,7 @@ services:
       - "443:443"
       - "80:80"
     environment:
-      DUCKDNS_TOKEN: "${DUCKDNS_TOKEN}"
+      HETZNER_API_KEY: "${HETZNER_API_KEY}"
 
   authelia_redis:
     image: redis
@@ -68,7 +68,7 @@ services:
     expose: 
       - 9091
     environment:
-      TZ: Europe/Amsterdam
+      TZ: Europe/Lisbon
       X_AUTHELIA_CONFIG_FILTERS: template
       MY_DOMAIN: ${MY_DOMAIN}
       AUTHELIA_IDENTITY_VALIDATION_RESET_PASSWORD_JWT_SECRET_FILE: /config/secrets/JWT_SECRET
@@ -85,7 +85,7 @@ services:
       - 'traefik.http.routers.sonarr.entryPoints=websecure'
       - 'traefik.http.routers.sonarr.middlewares=authelia@docker'
     environment:
-      TZ: Europe/Amsterdam
+      TZ: Europe/Lisbon
     volumes:
       - ../data/sonarr:/config
       - /mnt/media/TV:/tv
@@ -101,7 +101,7 @@ services:
       - 'traefik.http.routers.radarr.entryPoints=websecure'
       - 'traefik.http.routers.radarr.middlewares=authelia@docker'
     environment:
-      TZ: Europe/Amsterdam
+      TZ: Europe/Lisbon
     volumes:
       - ../data/radarr:/config
       - /mnt/media/Movies:/movies
@@ -117,7 +117,7 @@ services:
       - 'traefik.http.routers.deluge.entryPoints=websecure'
       - 'traefik.http.routers.deluge.middlewares=authelia@docker'
     environment:
-      TZ: Europe/Amsterdam
+      TZ: Europe/Lisbon
     volumes:
       - ../data/deluge:/config
       - /mnt/media/Downloads:/downloads
@@ -131,7 +131,7 @@ services:
       - 'traefik.http.routers.jellyfin.rule=Host(`jellyfin.${MY_DOMAIN}`)'
       - 'traefik.http.routers.jellyfin.entryPoints=websecure'
     environment:
-      TZ: Europe/Amsterdam
+      TZ: Europe/Lisbon
     volumes:
       - ../data/jellyfin:/config
       - /mnt/media/Movies:/movies
