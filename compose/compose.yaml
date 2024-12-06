@@ -2,7 +2,7 @@ services:
   proxy:
     image: traefik
     container_name: traefik
-    depends_on: 
+    depends_on:
       - authelia
     restart: unless-stopped
     command:
@@ -28,11 +28,11 @@ services:
       - "../data/traefik/letsencrypt:/letsencrypt"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     labels:
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.api.rule=Host(`${MY_DOMAIN}`)'
-      - 'traefik.http.routers.api.entryPoints=websecure'
-      - 'traefik.http.routers.api.service=api@internal'
-      - 'traefik.http.routers.api.middlewares=authelia@docker'
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`${MY_DOMAIN}`)"
+      - "traefik.http.routers.api.entryPoints=websecure"
+      - "traefik.http.routers.api.service=api@internal"
+      - "traefik.http.routers.api.middlewares=authelia@docker"
     ports:
       - "443:443"
       - "80:80"
@@ -53,39 +53,39 @@ services:
     image: authelia/authelia
     container_name: authelia
     labels:
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.authelia.rule=Host(`auth.${MY_DOMAIN}`)'
-      - 'traefik.http.routers.authelia.entryPoints=websecure'
-      - 'traefik.http.middlewares.authelia.forwardAuth.address=http://authelia:9091/api/authz/forward-auth'
-      - 'traefik.http.middlewares.authelia.forwardAuth.trustForwardHeader=true'
-      - 'traefik.http.middlewares.authelia.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Email,Remote-Name'
+      - "traefik.enable=true"
+      - "traefik.http.routers.authelia.rule=Host(`auth.${MY_DOMAIN}`)"
+      - "traefik.http.routers.authelia.entryPoints=websecure"
+      - "traefik.http.middlewares.authelia.forwardAuth.address=http://authelia:9091/api/authz/forward-auth"
+      - "traefik.http.middlewares.authelia.forwardAuth.trustForwardHeader=true"
+      - "traefik.http.middlewares.authelia.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Email,Remote-Name"
     depends_on:
       authelia_generate_secrets:
         condition: service_completed_successfully
     volumes:
       - ../data/authelia:/config
     restart: unless-stopped
-    expose: 
+    expose:
       - 9091
     environment:
-      TZ: Europe/Lisbon
-      X_AUTHELIA_CONFIG_FILTERS: template
-      MY_DOMAIN: ${MY_DOMAIN}
-      AUTHELIA_IDENTITY_VALIDATION_RESET_PASSWORD_JWT_SECRET_FILE: /config/secrets/JWT_SECRET
-      AUTHELIA_SESSION_SECRET_FILE: /config/secrets/SESSION_SECRET
-      AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE: /config/secrets/STORAGE_ENCRYPTION_KEY
+      TZ: "Europe/Lisbon"
+      X_AUTHELIA_CONFIG_FILTERS: "template"
+      MY_DOMAIN: "${MY_DOMAIN}"
+      AUTHELIA_IDENTITY_VALIDATION_RESET_PASSWORD_JWT_SECRET_FILE: "/config/secrets/JWT_SECRET"
+      AUTHELIA_SESSION_SECRET_FILE: "/config/secrets/SESSION_SECRET"
+      AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE: "/config/secrets/STORAGE_ENCRYPTION_KEY"
 
   sonarr:
     container_name: sonarr
     image: linuxserver/sonarr:latest
     restart: unless-stopped
     labels:
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.sonarr.rule=Host(`sonarr.${MY_DOMAIN}`)'
-      - 'traefik.http.routers.sonarr.entryPoints=websecure'
-      - 'traefik.http.routers.sonarr.middlewares=authelia@docker'
+      - "traefik.enable=true"
+      - "traefik.http.routers.sonarr.rule=Host(`sonarr.${MY_DOMAIN}`)"
+      - "traefik.http.routers.sonarr.entryPoints=websecure"
+      - "traefik.http.routers.sonarr.middlewares=authelia@docker"
     environment:
-      TZ: Europe/Lisbon
+      TZ: "Europe/Lisbon"
     volumes:
       - ../data/sonarr:/config
       - /mnt/media/TV:/tv
@@ -96,12 +96,12 @@ services:
     image: linuxserver/radarr:latest
     restart: unless-stopped
     labels:
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.radarr.rule=Host(`radarr.${MY_DOMAIN}`)'
-      - 'traefik.http.routers.radarr.entryPoints=websecure'
-      - 'traefik.http.routers.radarr.middlewares=authelia@docker'
+      - "traefik.enable=true"
+      - "traefik.http.routers.radarr.rule=Host(`radarr.${MY_DOMAIN}`)"
+      - "traefik.http.routers.radarr.entryPoints=websecure"
+      - "traefik.http.routers.radarr.middlewares=authelia@docker"
     environment:
-      TZ: Europe/Lisbon
+      TZ: "Europe/Lisbon"
     volumes:
       - ../data/radarr:/config
       - /mnt/media/Movies:/movies
@@ -112,12 +112,12 @@ services:
     image: linuxserver/deluge:latest
     restart: unless-stopped
     labels:
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.deluge.rule=Host(`deluge.${MY_DOMAIN}`)'
-      - 'traefik.http.routers.deluge.entryPoints=websecure'
-      - 'traefik.http.routers.deluge.middlewares=authelia@docker'
+      - "traefik.enable=true"
+      - "traefik.http.routers.deluge.rule=Host(`deluge.${MY_DOMAIN}`)"
+      - "traefik.http.routers.deluge.entryPoints=websecure"
+      - "traefik.http.routers.deluge.middlewares=authelia@docker"
     environment:
-      TZ: Europe/Lisbon
+      TZ: "Europe/Lisbon"
     volumes:
       - ../data/deluge:/config
       - /mnt/media/Downloads:/downloads
@@ -127,12 +127,53 @@ services:
     image: jellyfin/jellyfin:latest
     restart: unless-stopped
     labels:
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.jellyfin.rule=Host(`jellyfin.${MY_DOMAIN}`)'
-      - 'traefik.http.routers.jellyfin.entryPoints=websecure'
+      - "traefik.enable=true"
+      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.${MY_DOMAIN}`)"
+      - "traefik.http.routers.jellyfin.entryPoints=websecure"
     environment:
-      TZ: Europe/Lisbon
+      TZ: "Europe/Lisbon"
     volumes:
       - ../data/jellyfin:/config
       - /mnt/media/Movies:/movies
       - /mnt/media/TV:/tv
+
+  mysql:
+    image: mariadb:latest
+    container_name: nextcloud_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "nextcloud"
+      MYSQL_USER: "nextcloud"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+      TZ: Europe/Lisbon
+    volumes:
+      - /mnt/media/nextcloud_db:/var/lib/mysql
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: unless-stopped
+
+  nextcloud:
+    image: nextcloud:latest
+    container_name: nextcloud
+    restart: unless-stopped
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      TZ: Europe/Lisbon
+      MYSQL_HOST: "mysql"
+      MYSQL_USER: "nextcloud"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+      MYSQL_DATABASE: "nextcloud"
+      REDIS_HOST: "redis"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nextcloud.rule=Host(`next.${MY_DOMAIN}`)"
+      - "traefik.http.routers.nextcloud.entryPoints=websecure"
+    volumes:
+      - /mnt/personal/nextcloud/app:/var/www/html
+      - /mnt/personal/nextcloud/data:/var/www/html/data
+      - /mnt/personal/media:/mnt/media
