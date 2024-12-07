@@ -154,16 +154,14 @@ services:
 
   mysql:
     image: mariadb:latest
-    container_name: nextcloud_db
+    container_name: mysql_db
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
-      MYSQL_DATABASE: "nextcloud"
-      MYSQL_USER: "nextcloud"
-      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
       TZ: Europe/Lisbon
     volumes:
       - /mnt/media/nextcloud_db:/var/lib/mysql
+      - ./db-init:/docker-entrypoint-initdb.d
 
   redis:
     image: redis:alpine
@@ -180,9 +178,9 @@ services:
     environment:
       TZ: Europe/Lisbon
       MYSQL_HOST: "mysql"
-      MYSQL_USER: "nextcloud"
-      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-      MYSQL_DATABASE: "nextcloud"
+      MYSQL_USER: "${MYSQL_NEXTCLOUD_USER}"
+      MYSQL_PASSWORD: "${MYSQL_NEXTCLOUD_PASSWORD}"
+      MYSQL_DATABASE: "${MYSQL_NEXTCLOUD_DATABASE}"
       REDIS_HOST: "redis"
     labels:
       - "traefik.enable=true"
@@ -191,3 +189,29 @@ services:
     volumes:
       - /mnt/personal/nextcloud/app:/var/www/html
       - /mnt/personal/nextcloud/data:/var/www/html/data
+
+  photoprism:
+    image: photoprism/photoprism:latest
+    container_name: photoprism
+    depends_on:
+      - mysql
+    restart: unless-stopped
+    environment:
+      TZ: "Europe/Lisbon"
+      PHOTOPRISM_ADMIN_PASSWORD: "${PHOTOPRISM_ADMIN_PASSWORD}"
+      PHOTOPRISM_DATABASE_DRIVER: "mysql"
+      PHOTOPRISM_DATABASE_SERVER: "mysql:3306"
+      PHOTOPRISM_DATABASE_USER: "${MYSQL_PHOTOPRISM_USER}"
+      PHOTOPRISM_DATABASE_PASSWORD: "${MYSQL_PHOTOPRISM_PASSWORD}"
+      PHOTOPRISM_DATABASE_NAME: "${MYSQL_PHOTOPRISM_DATABASE}"
+      PHOTOPRISM_TITLE: "My Photo Library"
+      PHOTOPRISM_DESCRIPTION: "Browse, search & share your photo collection"
+      PHOTOPRISM_IMPORT_PATH: "/photoprism/import"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.photoprism.rule=Host(`photos.${MY_DOMAIN}`)"
+      - "traefik.http.routers.photoprism.entryPoints=websecure"
+    volumes:
+      - /mnt/personal/media/photoprism/storage:/photoprism/storage
+      - /mnt/personal/media/photos:/photoprism/originals
+      - /mnt/personal/media/photoprism/import:/photoprism/import
