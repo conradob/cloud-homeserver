@@ -190,3 +190,29 @@ services:
       - /mnt/personal/nextcloud/app:/var/www/html
       - /mnt/personal/nextcloud/data:/var/www/html/data
       - /mnt/personal/media:/mnt/media
+
+  photoprism:
+    image: photoprism/photoprism:latest
+    container_name: photoprism
+    depends_on:
+      - mysql
+    restart: unless-stopped
+    environment:
+      TZ: "Europe/Lisbon"
+      PHOTOPRISM_ADMIN_PASSWORD: "${PHOTOPRISM_ADMIN_PASSWORD}"
+      PHOTOPRISM_DATABASE_DRIVER: "mysql"
+      PHOTOPRISM_DATABASE_SERVER: "mysql:3306"
+      PHOTOPRISM_DATABASE_USER: "${MYSQL_PHOTOPRISM_USER}"
+      PHOTOPRISM_DATABASE_PASSWORD: "${MYSQL_PHOTOPRISM_PASSWORD}"
+      PHOTOPRISM_DATABASE_NAME: "${MYSQL_PHOTOPRISM_DATABASE}"
+      PHOTOPRISM_TITLE: "My Photo Library"
+      PHOTOPRISM_DESCRIPTION: "Browse, search & share your photo collection"
+      PHOTOPRISM_IMPORT_PATH: "/photoprism/import"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.photoprism.rule=Host(`photos.${MY_DOMAIN}`)"
+      - "traefik.http.routers.photoprism.entryPoints=websecure"
+    volumes:
+      - /mnt/personal/media:/photoprism/originals:ro
+      - /mnt/personal/photoprism/storage:/photoprism/storage
+      - /mnt/personal/photoprism/import:/photoprism/import
