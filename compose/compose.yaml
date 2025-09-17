@@ -222,3 +222,18 @@ services:
       - "traefik.http.routers.odoo.rule=Host(`odoo.${MY_DOMAIN}`)"
       - "traefik.http.routers.odoo.entryPoints=websecure"
       - "traefik.http.services.odoo.loadbalancer.server.port=8069"
+
+      # --- HTTP app on 8069 ---
+      - "traefik.http.routers.odoo.tls=true"
+      # (optionally protect the *app* with Authelia, but not the WS)
+      # - "traefik.http.routers.odoo.middlewares=authelia@docker"
+
+      # --- WebSocket bus on 8072 ---
+      - "traefik.http.routers.odoo-ws.rule=Host(`odoo.${MY_DOMAIN}`) && PathPrefix(`/websocket`)"
+      - "traefik.http.routers.odoo-ws.entryPoints=websecure"
+      - "traefik.http.routers.odoo-ws.tls=true"
+      - "traefik.http.services.odoo-ws.loadbalancer.server.port=8072"
+
+      # Keep original Host header (nice to have)
+      - "traefik.http.services.odoo.loadbalancer.passhostheader=true"
+      - "traefik.http.services.odoo-ws.loadbalancer.passhostheader=true"
