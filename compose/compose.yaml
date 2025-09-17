@@ -210,6 +210,7 @@ services:
     depends_on:
       - odoo_postgres
     environment:
+      ENVIRONMENT: production
       TZ: Europe/Lisbon
       ODOO_DB_HOST: "${ODOO_DB_HOST}"
       ODOO_DB_USER: "${ODOO_DB_USER}"
@@ -217,23 +218,23 @@ services:
       ODOO_DB_NAME: "${ODOO_DB_NAME}"
       ODOO_DB_PORT: "${ODOO_DB_PORT}"
       ODOO_INIT_MODULES: knowlix_skin_brand
+    volumes:
+      - odoo_data:/var/lib/odoo
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.odoo.rule=Host(`odoo.${MY_DOMAIN}`)"
+      - "traefik.docker.network=compose_default"
+      - "traefik.http.routers.odoo.rule=Host(`odoo.superuser.cloud`)"
       - "traefik.http.routers.odoo.entryPoints=websecure"
-      - "traefik.http.services.odoo.loadbalancer.server.port=8069"
-
-      # --- HTTP app on 8069 ---
       - "traefik.http.routers.odoo.tls=true"
-      # (optionally protect the *app* with Authelia, but not the WS)
-      # - "traefik.http.routers.odoo.middlewares=authelia@docker"
-
-      # --- WebSocket bus on 8072 ---
-      - "traefik.http.routers.odoo-ws.rule=Host(`odoo.${MY_DOMAIN}`) && PathPrefix(`/websocket`)"
+      - "traefik.http.routers.odoo.service=odoo"
+      - "traefik.http.services.odoo.loadbalancer.server.port=8069"
+      - "traefik.http.services.odoo.loadbalancer.passhostheader=true"
+      - "traefik.http.routers.odoo-ws.rule=Host(`odoo.superuser.cloud`) && PathPrefix(`/websocket`)"
       - "traefik.http.routers.odoo-ws.entryPoints=websecure"
       - "traefik.http.routers.odoo-ws.tls=true"
+      - "traefik.http.routers.odoo-ws.service=odoo-ws"
       - "traefik.http.services.odoo-ws.loadbalancer.server.port=8072"
-
-      # Keep original Host header (nice to have)
-      - "traefik.http.services.odoo.loadbalancer.passhostheader=true"
       - "traefik.http.services.odoo-ws.loadbalancer.passhostheader=true"
+
+volumes:
+  odoo_data:
