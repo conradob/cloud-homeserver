@@ -13,7 +13,17 @@ authentication_backend:
     path: '/config/users_database.yml'
 
 access_control:
-  default_policy: 'one_factor'
+  default_policy: 'deny'
+  rules:
+    - domain:
+        - '{{ env "MY_DOMAIN" }}'
+        - '*.{{ env "MY_DOMAIN" }}'
+      subject: 'group:admins'
+      policy: 'one_factor'
+
+    - domain: 'org.{{ env "MY_DOMAIN" }}'
+      subject: 'group:operators'
+      policy: 'one_factor'
 
 session:
   cookies:
