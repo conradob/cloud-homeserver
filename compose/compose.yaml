@@ -1,15 +1,27 @@
 services:
+  traefik_generate_dynamic:
+    build: traefik
+    volumes:
+      - ../data/traefik/dynamic:/dynamic
+    environment:
+      MY_DOMAIN: "${MY_DOMAIN}"
+
   proxy:
     image: traefik
     container_name: traefik
     depends_on:
-      - authelia
+      authelia:
+        condition: service_started
+      traefik_generate_dynamic:
+        condition: service_completed_successfully
     restart: unless-stopped
     command:
       - "--log.level=DEBUG"
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
+      - "--providers.file.directory=/dynamic"
+      - "--providers.file.watch=true"
       - "--certificatesresolvers.letsencrypt.acme.dnschallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=hetzner"
       - "--certificatesresolvers.letsencrypt.acme.email=support@${MY_DOMAIN}"
@@ -27,6 +39,7 @@ services:
     volumes:
       - "../data/traefik/letsencrypt:/letsencrypt"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "../data/traefik/dynamic:/dynamic:ro"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`${MY_DOMAIN}`)"
