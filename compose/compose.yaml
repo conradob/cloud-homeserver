@@ -168,6 +168,34 @@ services:
     container_name: redis
     restart: unless-stopped
 
+  wireguard_generate_config:
+    build: wireguard
+    volumes:
+      - ../data/wireguard:/config
+    environment:
+      WG_PRIVATE_KEY: "${WG_PRIVATE_KEY}"
+      WG_PEER_PUBLIC_KEY: "${WG_PEER_PUBLIC_KEY}"
+      WG_PEER_PRESHARED_KEY: "${WG_PEER_PRESHARED_KEY}"
+
+  wireguard:
+    image: lscr.io/linuxserver/wireguard:latest
+    container_name: wireguard
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    depends_on:
+      wireguard_generate_config:
+        condition: service_completed_successfully
+    volumes:
+      - ../data/wireguard:/config
+      - /lib/modules:/lib/modules
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "Europe/Lisbon"
+    restart: unless-stopped
+
   nextcloud:
     image: nextcloud:latest
     container_name: nextcloud
