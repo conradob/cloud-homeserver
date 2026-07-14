@@ -15,6 +15,11 @@ authentication_backend:
 access_control:
   default_policy: 'deny'
   rules:
+    - domain: 't3-2.{{ env "MY_DOMAIN" }}'
+      policy: 'bypass'
+      methods:
+        - 'OPTIONS'
+
     - domain:
         - '{{ env "MY_DOMAIN" }}'
         - '*.{{ env "MY_DOMAIN" }}'

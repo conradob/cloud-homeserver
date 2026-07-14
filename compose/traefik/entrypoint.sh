@@ -25,3 +25,24 @@ http:
 EOF
 
 echo "paperclip.yml generated"
+
+cat > /dynamic/t3-2.yml <<EOF
+http:
+  routers:
+    t3-2:
+      rule: "Host(\`t3-2.${MY_DOMAIN}\`)"
+      entryPoints:
+        - websecure
+      service: t3-2
+      middlewares:
+        - authelia@docker
+
+  services:
+    t3-2:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: "http://10.8.0.2:3773"
+EOF
+
+echo "t3-2.yml generated"
