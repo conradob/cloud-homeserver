@@ -136,6 +136,10 @@ EOF
 chmod 600 /config/wg_confs/wg0.conf
 ```
 
+> This is the single-peer form. To connect additional machines to the tunnel, the
+> generator templates one `[Peer]` block per peer — see
+> [Adding Another WireGuard Peer](adding-a-wireguard-peer.md).
+
 Set the variables in your `.env` file:
 
 ```bash
@@ -245,7 +249,7 @@ sudo reboot
 ping -c 2 10.8.0.2
 ```
 
-If ping fails until someone logs in to the Mac's GUI, the tunnel is waiting for a user session. Options: enable auto-login for an admin user, or switch to a `launchd` LaunchDaemon running `wg-quick` as root (out of scope for this doc).
+If ping fails until someone logs in to the Mac's GUI, the tunnel is waiting for a user session. Options: enable auto-login for an admin user, or switch to a `launchd` LaunchDaemon running `wg-quick` as root — see [Adding Another WireGuard Peer → headless boot daemon](adding-a-wireguard-peer.md#option-b--wg-quick--launchd-daemon-headless-boots-before-login--recommended-for-a-service-host).
 
 ### Bind the service to the tunnel address
 
