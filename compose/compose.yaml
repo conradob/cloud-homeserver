@@ -189,6 +189,8 @@ services:
       WG_PRIVATE_KEY: "${WG_PRIVATE_KEY}"
       WG_PEER_PUBLIC_KEY: "${WG_PEER_PUBLIC_KEY}"
       WG_PEER_PRESHARED_KEY: "${WG_PEER_PRESHARED_KEY}"
+      WG_PEER2_PUBLIC_KEY: "${WG_PEER2_PUBLIC_KEY}"
+      WG_PEER2_PRESHARED_KEY: "${WG_PEER2_PRESHARED_KEY}"
 
   wireguard:
     image: lscr.io/linuxserver/wireguard:latest

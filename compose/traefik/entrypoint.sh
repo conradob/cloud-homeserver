@@ -46,3 +46,24 @@ http:
 EOF
 
 echo "t3-2.yml generated"
+
+cat > /dynamic/t3-1.yml <<EOF
+http:
+  routers:
+    t3-1:
+      rule: "Host(\`t3-1.${MY_DOMAIN}\`)"
+      entryPoints:
+        - websecure
+      service: t3-1
+      middlewares:
+        - authelia@docker
+
+  services:
+    t3-1:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: "http://10.8.0.3:3773"
+EOF
+
+echo "t3-1.yml generated"
